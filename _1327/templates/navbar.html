@@ -56,70 +56,78 @@
 					</li>
 				{% endif %}
 			{% endfor %}
-			{% if CAN_CREATE_INFORMATIONPAGE or CAN_CREATE_MINUTES or CAN_CREATE_POLL %}
-				<li class="dropdown pull-right config-menu">
-					<span class="glyphicon glyphicon-menu-hamburger"></span>
-					<ul class="dropdown-menu">
+		</ul>
+		<form class="form-inline navbar-nav navbar-right">
+			<input class="form-control" type="search" placeholder="Search" aria-label="Search">
+			<button class="btn btn-outline-success" type="submit">Search</button>
+		</form>
+		{% if CAN_CREATE_INFORMATIONPAGE or CAN_CREATE_MINUTES or CAN_CREATE_POLL %}
+			<ul class="nav navbar-nav navbar-right">
+			<li class="dropdown pull-right config-menu">
+				<span class="glyphicon glyphicon-menu-hamburger"></span>
+				<ul class="dropdown-menu">
+					{% if CAN_CREATE_INFORMATIONPAGE %}
+						<li>
+							<a href="{% url 'documents:create' 'informationdocument' %}">{% trans "Create information page" %}</a>
+						</li>
+					{% endif %}
+					{% if CAN_CREATE_POLL %}
+						<li><a href="{% url 'documents:create' 'poll' %}">{% trans "Create poll" %}</a></li>
+					{% endif %}
+					{% if CAN_CREATE_MINUTES %}
+						{% if CAN_CREATE_MINUTES|length > 1 %}
+							<li class="disabled"><a href="#">{% trans "Create minutes for" %} <span
+									class="caret"></span></a></li>
+							<ul class="sublist">
+								{% for group in CAN_CREATE_MINUTES %}
+									<li>
+										<a href="{% url 'documents:create' 'minutesdocument' %}?group={{ group.id }}">{{ group.name }}</a>
+									</li>
+								{% endfor %}
+							</ul>
+						{% else %}
+							<li>
+								<a href="{% url 'documents:create' 'minutesdocument' %}?group={{ CAN_CREATE_MINUTES.first.id }}">{% trans "Create minutes" %}</a>
+							</li>
+						{% endif %}
+					{% endif %}
+					{% if CAN_CHANGE_MENU_ITEMS or CAN_CREATE_INFORMATIONPAGE %}
+						<li role="separator" class="divider"></li>
+						{% if CAN_CHANGE_MENU_ITEMS %}
+							<li><a href="{% url 'menu_items_index' %}">{% trans "Manage menu items" %}</a></li>
+						{% endif %}
 						{% if CAN_CREATE_INFORMATIONPAGE %}
 							<li>
-								<a href="{% url 'documents:create' 'informationdocument' %}">{% trans "Create information page" %}</a>
+								<a href="{% url 'information_pages:unlinked_list' %}">{% trans "Find unlinked information pages" %}</a>
 							</li>
 						{% endif %}
-						{% if CAN_CREATE_POLL %}
-							<li><a href="{% url 'documents:create' 'poll' %}">{% trans "Create poll" %}</a></li>
-						{% endif %}
-						{% if CAN_CREATE_MINUTES %}
-							{% if CAN_CREATE_MINUTES|length > 1 %}
-								<li class="disabled"><a href="#">{% trans "Create minutes for" %} <span
-										class="caret"></span></a></li>
-								<ul class="sublist">
-									{% for group in CAN_CREATE_MINUTES %}
-										<li>
-											<a href="{% url 'documents:create' 'minutesdocument' %}?group={{ group.id }}">{{ group.name }}</a>
-										</li>
-									{% endfor %}
-								</ul>
-							{% else %}
-								<li>
-									<a href="{% url 'documents:create' 'minutesdocument' %}?group={{ CAN_CREATE_MINUTES.first.id }}">{% trans "Create minutes" %}</a>
-								</li>
-							{% endif %}
-						{% endif %}
-						{% if CAN_CHANGE_MENU_ITEMS or CAN_CREATE_INFORMATIONPAGE %}
-							<li role="separator" class="divider"></li>
-							{% if CAN_CHANGE_MENU_ITEMS %}
-								<li><a href="{% url 'menu_items_index' %}">{% trans "Manage menu items" %}</a></li>
-							{% endif %}
-							{% if CAN_CREATE_INFORMATIONPAGE %}
-								<li>
-									<a href="{% url 'information_pages:unlinked_list' %}">{% trans "Find unlinked information pages" %}</a>
-								</li>
-							{% endif %}
-						{% endif %}
-						{% if user.is_superuser %}
-							<li role="separator" class="divider"></li>
-							<li>
-								<a href="{% url 'abbreviation_explanation' %}">{% trans "Manage abbreviation explanations" %}</a>
-							</li>
-							<li><a href="{% url 'shortlinks_index' %}">{% trans "Shortlinks" %}</a></li>
-							<li><a href="{% url 'view_as' %}">{% trans "View page as different user" %}</a></li>
-							<li><a href="{% url 'admin:index' %}">{% trans "Admin" %}</a></li>
-						{% endif %}
-					</ul>
-				</li>
-			{% endif %}
-			{# Search form #}
-			<li class="pull-right">
-				<a href="#" id="popover" data-placement="bottom">
+					{% endif %}
+					{% if user.is_superuser %}
+						<li role="separator" class="divider"></li>
+						<li>
+							<a href="{% url 'abbreviation_explanation' %}">{% trans "Manage abbreviation explanations" %}</a>
+						</li>
+						<li><a href="{% url 'shortlinks_index' %}">{% trans "Shortlinks" %}</a></li>
+						<li><a href="{% url 'view_as' %}">{% trans "View page as different user" %}</a></li>
+						<li><a href="{% url 'admin:index' %}">{% trans "Admin" %}</a></li>
+					{% endif %}
+				</ul>
+			</li>
+		{% endif %}
+		{# Search form #}
+		{% comment %}			<li class="pull-right">
+				<a href="#" id="popover" data-placement="bottom" data-toggle="popover" data-trigger="focus" tabindex="0">
 					<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
 				</a>
 				<div id="popover-content" class="hide">
 					<form action="{% url 'search' %}" method='post' id='general_search'>
 						{% csrf_token %}
-						<input type='text' name='search_phrase'>
+						<label>
+							<input type='text' name='search_phrase'>
+						</label>
 					</form>
 				</div>
-			</li>
+			</li>{% endcomment %}
 		</ul>
 	</nav>
 
