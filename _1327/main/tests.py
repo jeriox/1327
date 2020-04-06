@@ -151,7 +151,7 @@ class MenuItemTests(WebTest):
 		menu_item_count = MenuItem.objects.count()
 
 		response = self.app.get(reverse('menu_item_create'), user=self.root_user)
-		form = response.form
+		form = response.forms['menu_item_edit']
 		form['title_en'] = 'test title'
 		form['title_de'] = 'test titel'
 		form = response.forms['menu_item_edit']
@@ -527,7 +527,7 @@ class MenuItemTests(WebTest):
 		title_de = 'test titel'
 
 		response = self.app.get(reverse('menu_item_create'), user=self.user)
-		form = response.form
+		form = response.forms["menu_item_edit"]
 		form['title_en'] = title_en
 		form['title_de'] = title_de
 		form['document'].select(value=document.id)
@@ -641,7 +641,7 @@ class TestSearch(WebTest):
 
 	@classmethod
 	def setUpTestData(cls):
-		cls.user = mommy.make(UserProfile, is_superuser=True)
+		cls.user = baker.make(UserProfile, is_superuser=True)
 
 		text1 = "both notO \n Case notB notO \n two notB notO \n two lines notB notO \n all three notB notO"
 		text2 = "in both minutes notO \n one notB \n substring notB notO \n all three notB notO"
@@ -649,12 +649,12 @@ class TestSearch(WebTest):
 		text4 = "<script>alert(Hello);</script> something else"
 		text5 = "this will never show up notB notO"
 
-		cls.minutes_document = mommy.make(MinutesDocument, text=text1, title="TestMinute")
-		cls.poll = mommy.make(Poll, text=text2, title="TestPoll")
-		cls.information_document = mommy.make(InformationDocument, text=text3, title="TestInformationDocument")
-		cls.minutes_document_w_script = mommy.make(MinutesDocument, text=text4, title="TestMinuteWithScript")
-		cls.information_document_never = mommy.make(InformationDocument, text=text5, title="TestInformationDocumentNever")
-		cls.group = mommy.make(Group)
+		cls.minutes_document = baker.make(MinutesDocument, text=text1, title="TestMinute")
+		cls.poll = baker.make(Poll, text=text2, title="TestPoll")
+		cls.information_document = baker.make(InformationDocument, text=text3, title="TestInformationDocument")
+		cls.minutes_document_w_script = baker.make(MinutesDocument, text=text4, title="TestMinuteWithScript")
+		cls.information_document_never = baker.make(InformationDocument, text=text5, title="TestInformationDocumentNever")
+		cls.group = baker.make(Group)
 		cls.minutes_document.set_all_permissions(cls.group)
 		cls.poll.set_all_permissions(cls.group)
 		cls.information_document.set_all_permissions(cls.group)
@@ -662,7 +662,7 @@ class TestSearch(WebTest):
 		cls.information_document_never.set_all_permissions(cls.group)
 
 	def test_no_permission(self):
-		user = mommy.make(UserProfile)
+		user = baker.make(UserProfile)
 		search_string = "both"
 
 		response = self.app.get(reverse('index'), user=user)
@@ -676,7 +676,7 @@ class TestSearch(WebTest):
 		self.assertNotIn('TestPoll', response)
 
 	def test_some_permissions(self):
-		user = mommy.make(UserProfile)
+		user = baker.make(UserProfile)
 		self.minutes_document.set_all_permissions(user)
 		search_string = "both"
 

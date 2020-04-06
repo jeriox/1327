@@ -1,14 +1,10 @@
 import re
 
-from django.contrib.auth.models import Group
-from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
-from django.shortcuts import Http404, redirect, render
 from django.shortcuts import redirect, render
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import get_language
-from guardian.core import ObjectPermissionChecker
 
 from _1327.documents.utils import get_permitted_documents
 from _1327.minutes.forms import SearchForm
