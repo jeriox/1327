@@ -1,9 +1,10 @@
 1327
 ====
 
-[![Build Status](https://travis-ci.org/fsr-itse/1327.svg?branch=master)](https://travis-ci.org/fsr-itse/1327)
-[![Code Health](https://landscape.io/github/fsr-itse/1327/master/landscape.svg?style=flat)](https://landscape.io/github/fsr-itse/1327/master)
-[![Coverage Status](https://coveralls.io/repos/github/fsr-itse/1327/badge.svg?branch=master)](https://coveralls.io/github/fsr-itse/1327?branch=master)
+[![Build Status](https://travis-ci.org/fsr-de/1327.svg?branch=master)](https://travis-ci.org/fsr-de/1327)
+[![Requirements Status](https://requires.io/github/fsr-de/1327/requirements.svg?branch=master)](https://requires.io/github/fsr-de/1327/requirements/?branch=master)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/dbb7db2d1306434e92a947a9214671ba)](https://www.codacy.com/app/fsr-de/1327)
+[![Coverage Status](https://coveralls.io/repos/github/fsr-de/1327/badge.svg?branch=master)](https://coveralls.io/github/fsr-de/1327?branch=master)
 
 A student representatives website. This project is live! You can see a working instance of 1327 [here](https://myhpi.de/home)!
 
@@ -13,8 +14,6 @@ To be able to contribute to 1327, one needs to get the source code with all depe
 
 ```bash
 git clone https://github.com/fsr-itse/1327.git
-cd 1327
-git submodule update --init
 ```
 
 Freshly created code needs to be tested - besides our use of unit tests, linting and continous integration, it is possible to run the application in a non-production environment using *Vagrant* or a *Virtual Environment*.
@@ -46,9 +45,16 @@ python manage.py createsuperuser --username=root
 python manage.py runserver 0.0.0.0:8000
 ```
 
+After you're done with these steps, you'll need to install all static dependencies
+via [Yarn](https://yarnpkg.com/lang/en/).
+1. Install Yarn
+2. go into the directory `static`
+3. run the command `yarn`
+
 ## Deployment
 
 For deploying on a single machine 1327 you'll need to install all requirements from `requirements-deploy.txt`, and you can follow these [instructions](https://github.com/fsr-itse/1327/wiki/Deployment), for setting up a webserver and starting all scripts using a Process Control System, if you like.
+You'll also need to setup yarn, as indicated in the last section.
 
 
 ## License

@@ -73,9 +73,9 @@ def abbreviation_explanation_markdown():
 
 # see https://pythonhosted.org/Markdown/release-2.6.html#safe_mode-deprecated
 class EscapeHtml(Extension):
-	def extendMarkdown(self, md, md_globals):
-		del md.preprocessors['html_block']
-		del md.inlinePatterns['html']
+	def extendMarkdown(self, md):
+		md.preprocessors.deregister('html_block')
+		md.inlinePatterns.deregister('html')
 
 
 def convert_markdown(text):
@@ -87,7 +87,6 @@ def convert_markdown(text):
 			InternalLinksMarkdownExtension(),
 			'_1327.minutes.markdown_minutes_extensions',
 			'_1327.documents.markdown_scaled_image_extension',
-			'_1327.documents.markdown_emoji_extension',
 			'markdown.extensions.abbr',
 			'markdown.extensions.tables',
 		])
@@ -101,6 +100,16 @@ def slugify(string):
 	while '//' in slug:
 		slug = slug.replace('//', '/')
 	return slug
+
+
+class SlugWithSlashConverter:
+	regex = r'[\w\-/]+'
+
+	def to_python(self, value):
+		return str(value)
+
+	def to_url(self, value):
+		return str(value)
 
 
 def find_root_menu_items(items):

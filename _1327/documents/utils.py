@@ -2,7 +2,6 @@ from functools import lru_cache
 import json
 import re
 
-
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
@@ -43,6 +42,11 @@ def delete_old_empty_pages():
 def handle_edit(request, document, formset=None, initial=None, creation_group=None):
 	if request.method == 'POST':
 		creation = document.is_in_creation
+
+		# Creating the document with document.Form changes the document instance so that url_title is changed from the
+		# temp_url_title to the new url_title. We have to save and reset the url_title because otherwise multiple
+		# attempts to save invalid forms will result in a 404.
+		old_url_tile = document.url_title
 		form = document.Form(request.POST, instance=document, initial=initial, user=request.user, creation=creation, creation_group=creation_group)
 		if form.is_valid() and (formset is None or formset.is_valid()):
 			cleaned_data = form.cleaned_data
@@ -85,13 +89,15 @@ def handle_edit(request, document, formset=None, initial=None, creation_group=No
 				pass
 
 			return True, form
+		else:
+			document.url_title = old_url_tile
 	else:
 		# load Autosave
 		autosaves = TemporaryDocumentText.objects.filter(document=document, author=request.user)
 		autosaved = autosaves.count() > 0
 
+		autosave_to_restore = None
 		if 'restore' in request.GET and autosaved:
-			autosave_to_restore = None
 			for autosave in autosaves:
 				if int(request.GET['restore']) == autosave.id:
 					autosave_to_restore = autosave
@@ -100,7 +106,8 @@ def handle_edit(request, document, formset=None, initial=None, creation_group=No
 				raise SuspiciousOperation
 
 			form_data = {
-				'text': autosave_to_restore.text,
+				'text_de': autosave_to_restore.text_de,
+				'text_en': autosave_to_restore.text_en,
 				'url_title': document.url_title,
 			}
 			if initial is None:
@@ -109,6 +116,9 @@ def handle_edit(request, document, formset=None, initial=None, creation_group=No
 			autosaved = False
 
 		form = document.Form(initial=initial, instance=document, user=request.user, creation=document.is_in_creation, creation_group=creation_group)
+
+		if autosave_to_restore is not None:
+			form.autosave_id = autosave_to_restore.id
 
 		form.autosaved = autosaved
 		if autosaved:
@@ -121,8 +131,9 @@ def handle_autosave(request, document):
 	if request.method == 'POST':
 		form = document.Form(request.POST, user=request.user, creation=document.is_in_creation, instance=document)
 		form.is_valid()
-		text_strip = request.POST['text'].strip()
-		if text_strip != '':
+		text_de_strip = request.POST.get('text_de', default='').strip()
+		text_en_strip = request.POST.get('text_en', default='').strip()
+		if text_de_strip != '' or text_en_strip != '':
 			cleaned_data = form.cleaned_data
 
 			if document is None:
@@ -130,7 +141,8 @@ def handle_autosave(request, document):
 			else:
 				temporary_document_text, __ = TemporaryDocumentText.objects.get_or_create(document=document, author=request.user)
 
-			temporary_document_text.text = cleaned_data['text']
+			temporary_document_text.text_de = cleaned_data['text_de']
+			temporary_document_text.text_en = cleaned_data['text_en']
 			temporary_document_text.save()
 
 
@@ -140,7 +152,7 @@ def prepare_versions(document):
 	# prepare data for the template
 	version_list = []
 	for id, version in enumerate(versions):
-		version_list.append((id, version, json.dumps(version.field_dict['text']).strip('"')))
+		version_list.append((id, version, json.dumps(version.field_dict['text_de']).strip('"'), json.dumps(version.field_dict['text_en']).strip('"')))
 
 	return version_list
 
